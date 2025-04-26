@@ -104,10 +104,11 @@ public class SpaceManController : MonoBehaviour
             rb.sharedMaterial = preJumpMat;               // no friction
         }
 
-        if (charging && gi.jumpInput)   {                  // hold
+        if (charging && gi.jumpInput)
+        {                  // hold
             jumpPower = Mathf.Min(jumpPower + chargeStep, maxJumpPower);
             if (!directionHeld && Mathf.Abs(gi.valueX) > 0.01f)
-                directionHeld = true; 
+                directionHeld = true;
         }
 
         if (charging && (!gi.jumpInput || jumpPower >= maxJumpPower))
@@ -116,7 +117,7 @@ public class SpaceManController : MonoBehaviour
             {
                 float t = jumpPower / maxJumpPower;       // 0‑1
                 float horiz = directionHeld ? Mathf.Lerp(minJumpForce.x, maxJumpForce.x, t) * faceDir : 0f;    // no dir held → vertical
-                
+
                 Vector2 launch = new Vector2(
                 horiz, Mathf.Lerp(minJumpForce.y, maxJumpForce.y, t));
 
@@ -128,16 +129,18 @@ public class SpaceManController : MonoBehaviour
             jumpPower = 0f;
         }
 
-        if (!grounded && rb.linearVelocity.y < -1f)             // falling
+        if (!grounded && rb.linearVelocity.y < -1f) // falling
+        {
             rb.sharedMaterial = normalMat;
+        }
     }
 
-    /* -------------- Animator hooks --------------- */
-    void UpdateAnimator()
-    {
-        anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
-        anim.SetFloat("vSpeed", rb.linearVelocity.y);
-        anim.SetBool("grounded", grounded);
-        anim.SetBool("preJump", charging);
+        /* -------------- Animator hooks --------------- */
+        void UpdateAnimator()
+        {
+            anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+            anim.SetFloat("vSpeed", rb.linearVelocity.y);
+            anim.SetBool("grounded", grounded);
+            anim.SetBool("preJump", charging);
+        }
     }
-}
