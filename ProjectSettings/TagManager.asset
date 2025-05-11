@@ -6,6 +6,7 @@ TagManager:
   tags:
   - groundLayer
   - PausePanel
+  - WinPanel
   layers:
   - Default
   - TransparentFX

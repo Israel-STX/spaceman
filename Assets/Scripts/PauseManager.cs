@@ -17,7 +17,11 @@ public class PauseManager : MonoBehaviour
     {
         if (Instance && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject);          
+        DontDestroyOnLoad(gameObject);
+
+        // 🔽 guarantee hidden before first frame
+        if (pausePanel && pausePanel.activeSelf)
+            pausePanel.SetActive(false);
     }
 
     void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
@@ -35,23 +39,27 @@ public class PauseManager : MonoBehaviour
 
     void EnsurePanelExists()
     {
-        if (pausePanel != null) return;            
+        if (pausePanel) return;                         // already valid
 
+        // try tag
         var panel = GameObject.FindWithTag("PausePanel");
-        if (panel) { pausePanel = panel; panel.SetActive(false); return; }
+        if (panel)
+        {
+            pausePanel = panel;
+            pausePanel.SetActive(false);
+            return;
+        }
 
+        // fallback prefab
         if (pauseCanvasPrefab)
         {
             var canvas = Instantiate(pauseCanvasPrefab);
             pausePanel = canvas.transform.Find("PausePanel").gameObject;
             canvas.SetActive(false);
-            DontDestroyOnLoad(canvas);              
-        }
-        else
-        {
-            Debug.LogWarning("PauseManager: no PausePanel found!");
+            DontDestroyOnLoad(canvas);
         }
     }
+
 
 
     void Update()
@@ -62,12 +70,22 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause()
     {
-        if (!pausePanel) return;
+        if (!pausePanel) EnsurePanelExists();  
+        if (!pausePanel)                        
+        {
+            Debug.LogWarning("PauseManager: no PausePanel in this scene.");
+            return;
+        }
+
+        if (WinScreen.Instance && WinScreen.Instance.gameObject.activeInHierarchy)
+            return;
+
         isPaused = !isPaused;
         pausePanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0 : 1;
         AudioListener.pause = isPaused;
     }
+
 
     public void QuitToMenu() => SceneManager.LoadScene("MainMenuScene");
 }
